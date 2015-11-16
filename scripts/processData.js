@@ -6,7 +6,7 @@ import {getFormatedDate} from '../utils/handleDate.js';
 
 var postDirPath = resolve('../data/post');
 var fanPageDirPath = resolve('../data/fanPage');
-outputToJson('post', postDirPath);
+outputToJson('post-without-msg', postDirPath);
 outputToJson('fanPage', fanPageDirPath);
 
 function outputToJson(name, dirName) {
@@ -16,8 +16,6 @@ function outputToJson(name, dirName) {
             .map(proccessData)
             .filter(e => Object.keys(e).length > 0)
             .reduce((acc, cur) => acc.concat(cur))
-            // console.log(Object.keys(r[200]).length);
-            // console.log(r[200]);
         write(name, r)
     });
 }
@@ -59,7 +57,9 @@ function filterAttr (attr, element) {
             return false;
         }else if (attr.match(/weekly/ig) !== null){
             return false;
-        }else {
+        }else if (attr === "Post Message"){
+            return false;
+        } else {
             return true;
         }
     } else {
