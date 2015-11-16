@@ -6,7 +6,8 @@ import {getFormatedDate} from '../utils/handleDate.js';
 
 var postDirPath = resolve('../data/post');
 var fanPageDirPath = resolve('../data/fanPage');
-outputToJson('post-without-msg', postDirPath);
+
+outputToJson('post', postDirPath);
 outputToJson('fanPage', fanPageDirPath);
 
 function outputToJson(name, dirName) {
@@ -14,8 +15,9 @@ function outputToJson(name, dirName) {
         var r = fileNames
             .map((file) => resolve(dirName, file))
             .map(proccessData)
-            .filter(e => Object.keys(e).length > 0)
+            .filter(notEmptyObject)
             .reduce((acc, cur) => acc.concat(cur))
+            .filter(notEmptyObject)
         write(name, r)
     });
 }
@@ -40,7 +42,14 @@ function proccessData(path) {
             var o = {};
             attrs.forEach((attr, idx) => {
                 if (filterAttr(attr, e[idx])) {
-                    o[attr] = attrSetter(attr, e[idx]);
+                    switch(attr) {
+                        // case 'Post Message':
+                        //     o['Country'] = attrSetter('Country', e[idx]);
+                        //     break;
+                        default:
+                            o[attr] = attrSetter(attr, e[idx]);
+                    }
+                    
                 }
             });
             return o;
@@ -57,8 +66,6 @@ function filterAttr (attr, element) {
             return false;
         }else if (attr.match(/weekly/ig) !== null){
             return false;
-        }else if (attr === "Post Message"){
-            return false;
         } else {
             return true;
         }
@@ -66,12 +73,21 @@ function filterAttr (attr, element) {
         return false
     }
 }
-
+function getPostsCountry (post) {
+    var matcher = post.match(/^【(.+)】/);
+    return matcher ? matcher[1] : post;
+}
 function attrSetter(attr, element) {
     switch (attr) {
         case 'Posted':
             return getFormatedDate(element);
+        case 'Country':
+            return getPostsCountry(element)
         default:
             return element;
     }
+}
+
+function notEmptyObject (obj) {
+    return Object.keys(obj).length > 0;
 }
